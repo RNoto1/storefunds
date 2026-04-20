@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Store 3512 Cash Counter</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-dark: #1a2e1a;
+    --gold: #c9a84c;
+    --gold-light: #e8c96e;
+    --cream: #f5f0e8;
+    --text-light: #e8e0d0;
+    --text-muted: #9a9080;
+    --border: rgba(201,168,76,0.25);
+    --blue-light: #5a9abf;
+    --blue-border: rgba(90,154,191,0.3);
+    --purple: #b89ad8;
+    --purple-border: rgba(160,130,200,0.35);
+    --purple-bg: rgba(120,80,180,0.12);
+    --red: #e05555;
+    --orange: #e09040;
+    --green-ok: #55c055;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: var(--green-dark);
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,0,0,0.05) 40px, rgba(0,0,0,0.05) 41px),
+      repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(0,0,0,0.05) 40px, rgba(0,0,0,0.05) 41px);
+    font-family: 'Source Code Pro', monospace;
+    color: var(--text-light);
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+  header { text-align: center; margin-bottom: 32px; padding: 20px; border-bottom: 2px solid var(--gold); }
+  header h1 { font-family: 'Oswald', sans-serif; font-size: 2.2rem; font-weight: 700; letter-spacing: 0.15em; color: var(--gold-light); text-transform: uppercase; text-shadow: 0 2px 12px rgba(201,168,76,0.3); }
+  header p { color: var(--text-muted); font-size: 0.8rem; letter-spacing: 0.1em; margin-top: 6px; }
+  .saved-badge { display:inline-block; margin-top:8px; font-size:0.7rem; color:rgba(100,200,100,0.7); letter-spacing:0.1em; }
+
+  .page-section-label { font-family: 'Oswald', sans-serif; font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin: 28px 0 10px 4px; display: flex; align-items: center; gap: 10px; }
+  .page-section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .sub-section-label { font-family: 'Oswald', sans-serif; font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(201,168,76,0.45); margin: 18px 0 8px 4px; display: flex; align-items: center; gap: 8px; }
+  .sub-section-label::after { content: ''; flex: 1; height: 1px; background: rgba(201,168,76,0.12); }
+
+  .denom-card { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 14px; overflow: hidden; }
+  .denom-header { background: rgba(201,168,76,0.1); border-bottom: 1px solid var(--border); padding: 9px 16px; display: flex; align-items: center; gap: 10px; }
+  .denom-header h2 { font-family: 'Oswald', sans-serif; font-size: 0.95rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); }
+  .denom-header .denom-total { margin-left: auto; font-size: 0.9rem; font-weight: 600; color: var(--gold-light); background: rgba(201,168,76,0.12); padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border); min-width: 90px; text-align: right; }
+
+  .row { display: grid; grid-template-columns: 1fr 110px 100px; align-items: center; gap: 8px; padding: 9px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; }
+  .row:last-child { border-bottom: none; }
+  .row:hover { background: rgba(255,255,255,0.03); }
+  .row.sub { padding-left: 28px; background: rgba(0,0,0,0.1); }
+  .row.sub:hover { background: rgba(0,0,0,0.15); }
+  .row label { font-size: 0.82rem; color: var(--text-muted); letter-spacing: 0.06em; }
+  .row label span { color: var(--text-light); font-weight: 600; }
+  .row label .hint { display: block; font-size: 0.7rem; color: rgba(154,144,128,0.65); margin-top: 1px; }
+  .row.sub label span { color: #b8c8d8; }
+  .row.sub label .hint { color: rgba(100,130,150,0.7); }
+
+  input[type="number"] { background: rgba(0,0,0,0.3); border: 1px solid rgba(201,168,76,0.2); border-radius: 4px; color: var(--cream); font-family: 'Source Code Pro', monospace; font-size: 0.9rem; padding: 6px 10px; width: 100%; text-align: center; transition: border-color 0.2s, background 0.2s; -moz-appearance: textfield; }
+  input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+  input[type="number"]:focus { outline: none; border-color: var(--gold); background: rgba(0,0,0,0.45); }
+  input[type="text"] { background: rgba(0,0,0,0.3); border: 1px solid rgba(201,168,76,0.2); border-radius: 4px; color: var(--cream); font-family: 'Source Code Pro', monospace; font-size: 0.85rem; padding: 6px 10px; width: 100%; transition: border-color 0.2s; }
+  input[type="text"]:focus { outline: none; border-color: var(--gold); }
+
+  .row-total { font-size: 0.88rem; font-weight: 600; color: var(--gold-light); text-align: right; padding-right: 4px; min-height: 1.2em; }
+  .row-total.zero { color: rgba(154,144,128,0.4); }
+
+  /* In-Safe blue */
+  .denom-card.insafe { border-color: var(--blue-border); }
+  .denom-card.insafe .denom-header { background: rgba(58,106,138,0.15); border-bottom-color: var(--blue-border); }
+  .denom-card.insafe .denom-header h2 { color: var(--blue-light); }
+  .denom-card.insafe .denom-header .denom-total { color: var(--blue-light); background: rgba(58,106,138,0.2); border-color: var(--blue-border); }
+  .denom-card.insafe .row-total { color: var(--blue-light); }
+  .denom-card.insafe input[type="number"]:focus { border-color: var(--blue-light); }
+
+  /* Purple */
+  .denom-card.purple { border-color: var(--purple-border); }
+  .denom-card.purple .denom-header { background: var(--purple-bg); border-bottom-color: var(--purple-border); }
+  .denom-card.purple .denom-header h2 { color: var(--purple); }
+  .denom-card.purple .denom-header .denom-total { color: var(--purple); background: rgba(120,80,180,0.15); border-color: var(--purple-border); }
+  .denom-card.purple .row-total { color: var(--purple); }
+  .denom-card.purple input[type="number"]:focus { border-color: var(--purple); }
+  .denom-card.purple label span { color: #c8b0e8; }
+  .denom-card.purple label .hint { color: rgba(160,130,200,0.6); }
+
+  /* Pickup */
+  .pickup-list { padding: 8px 16px 4px; border-top: 1px dashed rgba(160,130,200,0.2); }
+  .pickup-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .pickup-row input { flex: 1; }
+  .pickup-label { font-size: 0.72rem; color: rgba(160,130,200,0.6); min-width: 68px; }
+  .pickup-amt { font-size: 0.82rem; font-weight: 600; color: var(--purple); min-width: 76px; text-align: right; }
+  .pickup-section-label { font-size: 0.7rem; color: rgba(160,130,200,0.5); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+  .add-pickup-btn { width: 100%; padding: 7px; background: rgba(120,80,180,0.1); border: 1px dashed rgba(160,130,200,0.3); border-radius: 4px; color: rgba(160,130,200,0.7); font-family: 'Oswald', sans-serif; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+  .add-pickup-btn:hover { background: rgba(120,80,180,0.2); color: var(--purple); }
+
+  /* Target indicator */
+  .target-bar { background: rgba(0,0,0,0.2); border-radius: 6px; padding: 14px 16px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.08); }
+  .target-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .target-label { font-family: 'Oswald', sans-serif; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+  .target-edit { display: flex; align-items: center; gap: 6px; }
+  .target-edit input { width: 90px; font-size: 0.85rem; padding: 4px 8px; border-color: rgba(201,168,76,0.3); }
+  .target-amounts { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; }
+  .target-current { font-family: 'Oswald', sans-serif; font-size: 1.6rem; font-weight: 700; transition: color 0.3s; }
+  .target-of { font-size: 0.75rem; color: var(--text-muted); text-align: right; }
+  .target-of span { display: block; font-family: 'Oswald', sans-serif; font-size: 1rem; color: var(--text-muted); }
+  .progress-track { height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 4px; transition: width 0.4s, background 0.4s; width: 0%; background: var(--green-ok); }
+  .target-status { font-size: 0.75rem; margin-top: 6px; text-align: center; letter-spacing: 0.08em; }
+
+  /* Change fund action buttons */
+  .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+  .action-btn { padding: 12px 8px; border-radius: 6px; border: none; font-family: 'Oswald', sans-serif; font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+  .action-btn.give { background: rgba(220,80,80,0.15); border: 1px solid rgba(220,80,80,0.4); color: #e08080; }
+  .action-btn.give:hover { background: rgba(220,80,80,0.25); border-color: rgba(220,80,80,0.7); }
+  .action-btn.return { background: rgba(80,180,80,0.12); border: 1px solid rgba(80,180,80,0.35); color: #80c880; }
+  .action-btn.return:hover { background: rgba(80,180,80,0.22); border-color: rgba(80,180,80,0.6); }
+
+  /* Modal overlay */
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 100; overflow-y: auto; padding: 20px 16px; }
+  .modal-overlay.open { display: block; }
+  .modal { background: #1e3220; border: 1px solid var(--border); border-radius: 10px; padding: 20px; max-width: 480px; margin: 0 auto; }
+  .modal.give-modal { border-color: rgba(220,80,80,0.4); }
+  .modal.return-modal { border-color: rgba(80,180,80,0.4); }
+  .modal-title { font-family: 'Oswald', sans-serif; font-size: 1.1rem; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 4px; }
+  .give-modal .modal-title { color: #e08080; }
+  .return-modal .modal-title { color: #80c880; }
+  .modal-subtitle { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 16px; }
+  .modal-section { font-family: 'Oswald', sans-serif; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); margin: 14px 0 8px; }
+  .modal-row { display: grid; grid-template-columns: 1fr 100px; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .modal-row label { font-size: 0.82rem; color: var(--text-light); }
+  .modal-row label small { display: block; font-size: 0.68rem; color: var(--text-muted); }
+  .modal-total { display: flex; justify-content: space-between; align-items: center; margin: 16px 0; padding: 12px 16px; background: rgba(0,0,0,0.2); border-radius: 6px; }
+  .modal-total-label { font-family: 'Oswald', sans-serif; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+  .modal-total-amt { font-family: 'Oswald', sans-serif; font-size: 1.4rem; font-weight: 700; }
+  .give-modal .modal-total-amt { color: #e08080; }
+  .return-modal .modal-total-amt { color: #80c880; }
+  .modal-note-row { margin-bottom: 14px; }
+  .modal-note-row label { font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px; }
+  .modal-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+  .modal-confirm { padding: 12px; border-radius: 6px; border: none; font-family: 'Oswald', sans-serif; font-size: 0.9rem; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; }
+  .give-modal .modal-confirm { background: rgba(220,80,80,0.25); border: 1px solid rgba(220,80,80,0.5); color: #e08080; }
+  .return-modal .modal-confirm { background: rgba(80,180,80,0.2); border: 1px solid rgba(80,180,80,0.4); color: #80c880; }
+  .modal-cancel { padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: var(--text-muted); font-family: 'Oswald', sans-serif; font-size: 0.9rem; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; }
+
+  /* Disbursement log */
+  .disb-log { margin-top: 12px; }
+  .disb-entry { background: rgba(220,80,80,0.08); border: 1px solid rgba(220,80,80,0.2); border-radius: 6px; padding: 10px 14px; margin-bottom: 8px; }
+  .disb-entry-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .disb-entry-name { font-size: 0.82rem; color: var(--text-light); font-weight: 600; }
+  .disb-entry-amt { font-family: 'Oswald', sans-serif; font-size: 1rem; color: #e08080; }
+  .disb-entry-time { font-size: 0.68rem; color: var(--text-muted); }
+  .disb-entry-detail { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
+  .disb-empty { font-size: 0.78rem; color: rgba(154,144,128,0.4); text-align: center; padding: 10px; }
+
+  /* Totals */
+  .totals-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 28px; }
+  .subtotal-box { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; }
+  .subtotal-box.insafe { border-color: var(--blue-border); }
+  .subtotal-label { font-family: 'Oswald', sans-serif; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .subtotal-box.insafe .subtotal-label { color: #5a8aaa; }
+  .subtotal-amount { font-family: 'Oswald', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--gold-light); }
+  .subtotal-box.insafe .subtotal-amount { color: var(--blue-light); }
+
+  .grand-total { margin-top: 14px; background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.06)); border: 2px solid var(--gold); border-radius: 8px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 0 30px rgba(201,168,76,0.1); }
+  .grand-total-label { font-family: 'Oswald', sans-serif; font-size: 1.1rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); }
+  .grand-total-amount { font-family: 'Oswald', sans-serif; font-size: 2rem; font-weight: 700; color: var(--gold-light); text-shadow: 0 0 20px rgba(201,168,76,0.4); letter-spacing: 0.05em; }
+  .combined-total-box { margin-top: 14px; background: linear-gradient(135deg, rgba(120,80,180,0.18), rgba(201,168,76,0.08)); border: 2px solid #9a70c8; border-radius: 8px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
+
+  /* Breakdown */
+  .breakdown-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; margin-bottom: 14px; overflow: hidden; }
+  .breakdown-header { background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.07); padding: 9px 16px; }
+  .breakdown-header h3 { font-family: 'Oswald', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+  .breakdown-row { display: grid; grid-template-columns: 1fr 1fr; padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-key { font-size: 0.78rem; color: var(--text-muted); }
+  .breakdown-val { font-size: 0.88rem; font-weight: 600; color: var(--text-light); text-align: right; }
+  .breakdown-val.zero { color: rgba(154,144,128,0.35); }
+
+  .clear-btn { display: block; width: 100%; margin-top: 16px; padding: 12px; background: transparent; border: 1px solid rgba(139,32,32,0.4); border-radius: 6px; color: rgba(200,100,100,0.7); font-family: 'Oswald', sans-serif; font-size: 0.85rem; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+  .clear-btn:hover { background: rgba(139,32,32,0.15); border-color: rgba(139,32,32,0.7); color: #e08080; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>💵 Store 3512</h1>
+  <p>Cash Counter — totals calculate automatically</p>
+  <div class="saved-badge" id="saved-badge"></div>
+</header>
+
+<!-- ══════════ FRONT OF STORE CHANGE FUND ══════════ -->
+<div class="page-section-label">🏪 Front of Store Change Fund</div>
+
+<!-- Target Indicator -->
+<div class="target-bar">
+  <div class="target-row">
+    <div class="target-label">Change Fund Target</div>
+    <div class="target-edit">
+      <span style="font-size:0.75rem;color:var(--text-muted);">$</span>
+      <input type="number" id="target-amount" value="2600" min="0" oninput="updateTarget();saveState();" style="width:90px;font-size:0.85rem;padding:4px 8px;border-color:rgba(201,168,76,0.3);">
+    </div>
+  </div>
+  <div class="target-amounts">
+    <div class="target-current" id="target-current" style="color:var(--text-muted);">$0.00</div>
+    <div class="target-of">of <span id="target-goal">$2,600.00</span></div>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+  <div class="target-status" id="target-status" style="color:var(--text-muted);">Enter your counts above</div>
+</div>
+
+<!-- Action Buttons -->
+<div class="action-btns">
+  <button class="action-btn give" onclick="openModal('give')">➖ Give Change</button>
+  <button class="action-btn return" onclick="openModal('return')">➕ Return Funds</button>
+</div>
+
+<!-- Disbursement Log -->
+<div id="disb-log-wrap" style="display:none;">
+  <div style="font-family:'Oswald',sans-serif;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(220,80,80,0.6);margin-bottom:8px;">Outstanding Disbursements</div>
+  <div class="disb-log" id="disb-log"></div>
+</div>
+
+<div class="sub-section-label">🪙 Coin Rolls</div>
+
+<div class="denom-card">
+  <div class="denom-header"><h2>Nickels</h2><div class="denom-total" id="dt-nickel">$0.00</div></div>
+  <div class="row">
+    <label><span>Nickel Rolls</span><span class="hint">$2.00 / roll</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-nickel" data-value="2" data-group="nickel" data-section="front" data-coin="nickel" oninput="update(this)">
+    <div class="row-total zero">—</div>
+  </div>
+</div>
+
+<div class="denom-card">
+  <div class="denom-header"><h2>Dimes</h2><div class="denom-total" id="dt-dime">$0.00</div></div>
+  <div class="row">
+    <label><span>Dime Rolls</span><span class="hint">$5.00 / roll</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-dime" data-value="5" data-group="dime" data-section="front" data-coin="dime" oninput="update(this)">
+    <div class="row-total zero">—</div>
+  </div>
+</div>
+
+<div class="denom-card">
+  <div class="denom-header"><h2>Quarters</h2><div class="denom-total" id="dt-quarter">$0.00</div></div>
+  <div class="row">
+    <label><span>Quarter Rolls</span><span class="hint">$10.00 / roll</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-quarter" data-value="10" data-group="quarter" data-section="front" data-coin="quarter" oninput="update(this)">
+    <div class="row-total zero">—</div>
+  </div>
+</div>
+
+<div class="sub-section-label">💵 Bills &amp; Packs</div>
+
+<div class="denom-card">
+  <div class="denom-header"><h2>$1 Bills</h2><div class="denom-total" id="dt-1">$0.00</div></div>
+  <div class="row">
+    <label><span>Individual $1s</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-1-ind" data-value="1" data-group="1" data-section="front" data-bill="1" oninput="update(this)">
+    <div class="row-total zero">—</div>
+  </div>
+  <div class="row sub">
+    <label><span>$1 Packs</span><span class="hint">$25 / pack · 25 bills</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-1-pack" data-value="25" data-group="1" data-section="front" data-bill="1" data-billmult="25" oninput="update(this)">
+    <div class="row-total zero">—</div>
+  </div>
+  <div class="row sub">
+    <label><span>$1 Bundles</span><span class="hint">$100 / bundle</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-1-bund" data-value="100" data-group="1" data-section="front" data-bill="1" data-billmult="100" oninput="update(this)">
+    <div class="row-total zero">—</div>
+  </div>
+</div>
+
+<div class="denom-card">
+  <div class="denom-header"><h2>$5 Bills</h2><div class="denom-total" id="dt-5">$0.00</div></div>
+  <div class="row">
+    <label><span>Individual $5s</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-5-ind" data-value="5" data-group="5" data-section="front" data-bill="5" oninput="update(this)">
+    <div class="row-total zero">—</div>
+  </div>
+  <div class="row sub">
+    <label><span>$5 Packs</span><span class="hint">$100 / pack · 20 bills</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-5-pack" data-value="100" data-group="5" data-section="front" data-bill="5" data-billmult="20" oninput="update(this)">
+    <div class="row-total zero">—</div>
+  </div>
+</div>
+
+<div class="denom-card">
+  <div class="denom-header"><h2>$10 Bills</h2><div class="denom-total" id="dt-10">$0.00</div></div>
+  <div class="row">
+    <label><span>Individual $10s</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-10-ind" data-value="10" data-group="10" data-section="front" data-bill="10" oninput="update(this)">
+    <div class="row-total zero">—</div>
+  </div>
+  <div class="row sub">
+    <label><span>$10 Packs</span><span class="hint">$100 / pack · 10 bills</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-10-pack" data-value="100" data-group="10" data-section="front" data-bill="10" data-billmult="10" oninput="update(this)">
+    <div class="row-total zero">—</div>
+  </div>
+</div>
+
+<div class="denom-card">
+  <div class="denom-header"><h2>$20 Bills</h2><div class="denom-total" id="dt-20">$0.00</div></div>
+  <div class="row">
+    <label><span>Individual $20s</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-20-ind" data-value="20" data-group="20" data-section="front" data-bill="20" oninput="update(this)">
+    <div class="row-total zero">—</div>
+  </div>
+  <div class="row sub">
+    <label><span>$20 Packs</span><span class="hint">$500 / pack · 25 bills</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-20-pack" data-value="500" data-group="20" data-section="front" data-bill="20" data-billmult="25" oninput="update(this)">
+    <div class="row-total zero">—</div>
+  </div>
+</div>
+
+<div class="denom-card">
+  <div class="denom-header"><h2>$50 Bills</h2><div class="denom-total" id="dt-50">$0.00</div></div>
+  <div class="row">
+    <label><span>Individual $50s</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-50-ind" data-value="50" data-group="50" data-section="front" data-bill="50" oninput="update(this)">
+    <div class="row-total zero">—</div>
+  </div>
+</div>
+
+<div class="denom-card">
+  <div class="denom-header"><h2>$100 Bills</h2><div class="denom-total" id="dt-100">$0.00</div></div>
+  <div class="row">
+    <label><span>Individual $100s</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-100-ind" data-value="100" data-group="100" data-section="front" data-bill="100" oninput="update(this)">
+    <div class="row-total zero">—</div>
+  </div>
+</div>
+
+<!-- ══════════ IN SAFE CHANGE FUND ══════════ -->
+<div class="page-section-label">🔒 In Safe Change Fund</div>
+
+<div class="denom-card insafe">
+  <div class="denom-header"><h2>Nickels</h2><div class="denom-total" id="dt-sf-nickel">$0.00</div></div>
+  <div class="row">
+    <label><span>Full Trays</span><span class="hint">$20 / tray · 10 rolls</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-sf-nickel-tray" data-value="20" data-group="sf-nickel" data-section="insafe" data-coin="nickel" data-trayrolls="10" oninput="update(this)">
+    <div class="row-total zero">—</div>
+  </div>
+  <div class="row sub">
+    <label><span>Individual Rolls</span><span class="hint">$2.00 / roll</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-sf-nickel-roll" data-value="2" data-group="sf-nickel" data-section="insafe" data-coin="nickel" oninput="update(this)">
+    <div class="row-total zero">—</div>
+  </div>
+</div>
+
+<div class="denom-card insafe">
+  <div class="denom-header"><h2>Dimes</h2><div class="denom-total" id="dt-sf-dime">$0.00</div></div>
+  <div class="row">
+    <label><span>Full Trays</span><span class="hint">$50 / tray · 10 rolls</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-sf-dime-tray" data-value="50" data-group="sf-dime" data-section="insafe" data-coin="dime" data-trayrolls="10" oninput="update(this)">
+    <div class="row-total zero">—</div>
+  </div>
+  <div class="row sub">
+    <label><span>Individual Rolls</span><span class="hint">$5.00 / roll</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-sf-dime-roll" data-value="5" data-group="sf-dime" data-section="insafe" data-coin="dime" oninput="update(this)">
+    <div class="row-total zero">—</div>
+  </div>
+</div>
+
+<div class="denom-card insafe">
+  <div class="denom-header"><h2>Quarters</h2><div class="denom-total" id="dt-sf-quarter">$0.00</div></div>
+  <div class="row">
+    <label><span>Full Trays</span><span class="hint">$100 / tray · 10 rolls</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-sf-quarter-tray" data-value="100" data-group="sf-quarter" data-section="insafe" data-coin="quarter" data-trayrolls="10" oninput="update(this)">
+    <div class="row-total zero">—</div>
+  </div>
+  <div class="row sub">
+    <label><span>Individual Rolls</span><span class="hint">$10.00 / roll</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-sf-quarter-roll" data-value="10" data-group="sf-quarter" data-section="insafe" data-coin="quarter" oninput="update(this)">
+    <div class="row-total zero">—</div>
+  </div>
+</div>
+
+<!-- ══════════ SUBTOTALS + CHANGE FUND TOTAL ══════════ -->
+<div class="totals-strip">
+  <div class="subtotal-box">
+    <div class="subtotal-label">Front of Store</div>
+    <div class="subtotal-amount" id="subtotal-front">$0.00</div>
+  </div>
+  <div class="subtotal-box insafe">
+    <div class="subtotal-label">In Safe</div>
+    <div class="subtotal-amount" id="subtotal-insafe">$0.00</div>
+  </div>
+</div>
+
+<div class="grand-total">
+  <div class="grand-total-label">Change Fund Total</div>
+  <div class="grand-total-amount" id="change-fund-total">$0.00</div>
+</div>
+
+<!-- ══════════ UNISSUED TILLS ══════════ -->
+<div class="page-section-label">🗂 Unissued Tills</div>
+<div class="denom-card purple">
+  <div class="denom-header">
+    <h2>Unissued Tills</h2>
+    <div class="denom-total" id="dt-tills">$0.00</div>
+  </div>
+  <div class="row" style="padding:14px 16px;">
+    <label><span>Number of Tills</span><span class="hint">$100.00 each</span></label>
+    <input type="number" min="0" placeholder="0" id="inp-tills" oninput="updateTills()">
+    <div class="row-total zero" id="rt-tills">—</div>
+  </div>
+</div>
+
+<!-- ══════════ SAFE DEPOSITS ══════════ -->
+<div class="page-section-label">🔐 Safe Deposits</div>
+<div class="denom-card purple">
+  <div class="denom-header">
+    <h2>Safe Deposits</h2>
+    <div class="denom-total" id="dt-safe">$0.00</div>
+  </div>
+  <div class="row" style="grid-template-columns:1fr 120px 120px;padding:12px 16px;gap:8px;">
+    <label><span>Starting Balance</span><span class="hint">Current amount in safe</span></label>
+    <div style="display:flex;flex-direction:column;gap:3px;">
+      <input type="number" min="0" placeholder="Dollars" id="inp-safe-dollars" oninput="updateSafe()">
+      <div style="font-size:0.62rem;text-align:center;color:rgba(160,130,200,0.5);letter-spacing:0.08em;">DOLLARS</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:3px;">
+      <input type="number" min="0" max="99" placeholder="Cents" id="inp-safe-cents" oninput="updateSafe()">
+      <div style="font-size:0.62rem;text-align:center;color:rgba(160,130,200,0.5);letter-spacing:0.08em;">CENTS</div>
+    </div>
+  </div>
+  <div class="pickup-list" id="pickup-list">
+    <div class="pickup-section-label">Pickups Added Throughout the Day</div>
+  </div>
+  <div style="padding:0 12px 12px;">
+    <button class="add-pickup-btn" onclick="addPickup()">+ Add Pickup</button>
+  </div>
+</div>
+
+<!-- ══════════ COMBINED GRAND TOTAL ══════════ -->
+<div class="combined-total-box">
+  <div class="grand-total-label" style="color:var(--purple);">Combined Grand Total</div>
+  <div class="grand-total-amount" id="combined-total" style="color:#d4b8f0;text-shadow:0 0 20px rgba(180,140,240,0.4);">$0.00</div>
+</div>
+
+<!-- ══════════ CHANGE FUND BREAKDOWN ══════════ -->
+<div class="page-section-label">🔢 Change Fund Breakdown</div>
+<div class="breakdown-card">
+  <div class="breakdown-header"><h3>💵 Total Bills (Front of Store)</h3></div>
+  <div class="breakdown-row"><div class="breakdown-key">$1 Bills</div><div class="breakdown-val zero" id="bd-bill-1">—</div></div>
+  <div class="breakdown-row"><div class="breakdown-key">$5 Bills</div><div class="breakdown-val zero" id="bd-bill-5">—</div></div>
+  <div class="breakdown-row"><div class="breakdown-key">$10 Bills</div><div class="breakdown-val zero" id="bd-bill-10">—</div></div>
+  <div class="breakdown-row"><div class="breakdown-key">$20 Bills</div><div class="breakdown-val zero" id="bd-bill-20">—</div></div>
+  <div class="breakdown-row"><div class="breakdown-key">$50 Bills</div><div class="breakdown-val zero" id="bd-bill-50">—</div></div>
+  <div class="breakdown-row"><div class="breakdown-key">$100 Bills</div><div class="breakdown-val zero" id="bd-bill-100">—</div></div>
+</div>
+<div class="breakdown-card">
+  <div class="breakdown-header"><h3>🪙 Total Coin Rolls (Front + In Safe)</h3></div>
+  <div class="breakdown-row"><div class="breakdown-key">Nickel Rolls</div><div class="breakdown-val zero" id="bd-coin-nickel">—</div></div>
+  <div class="breakdown-row"><div class="breakdown-key">Dime Rolls</div><div class="breakdown-val zero" id="bd-coin-dime">—</div></div>
+  <div class="breakdown-row"><div class="breakdown-key">Quarter Rolls</div><div class="breakdown-val zero" id="bd-coin-quarter">—</div></div>
+</div>
+
+<button class="clear-btn" onclick="clearAll()">⟳ Clear All</button>
+
+<!-- ══════════ GIVE CHANGE MODAL ══════════ -->
+<div class="modal-overlay" id="modal-give">
+  <div class="modal give-modal">
+    <div class="modal-title">➖ Give Change</div>
+    <div class="modal-subtitle">Enter what you're giving out — will be deducted from Front of Store</div>
+    <div class="modal-note-row">
+      <label>Who is receiving change?</label>
+      <input type="text" id="give-note" placeholder="e.g. Clerk 1, Register 2...">
+    </div>
+    <div class="modal-section">🪙 Coin Rolls</div>
+    <div class="modal-row"><label>Nickel Rolls<small>$2.00 each</small></label><input type="number" min="0" placeholder="0" id="gv-nickel" oninput="calcModalTotal('give')"></div>
+    <div class="modal-row"><label>Dime Rolls<small>$5.00 each</small></label><input type="number" min="0" placeholder="0" id="gv-dime" oninput="calcModalTotal('give')"></div>
+    <div class="modal-row"><label>Quarter Rolls<small>$10.00 each</small></label><input type="number" min="0" placeholder="0" id="gv-quarter" oninput="calcModalTotal('give')"></div>
+    <div class="modal-section">💵 Bills</div>
+    <div class="modal-row"><label>$1 Bills</label><input type="number" min="0" placeholder="0" id="gv-1" oninput="calcModalTotal('give')"></div>
+    <div class="modal-row"><label>$5 Bills</label><input type="number" min="0" placeholder="0" id="gv-5" oninput="calcModalTotal('give')"></div>
+    <div class="modal-row"><label>$10 Bills</label><input type="number" min="0" placeholder="0" id="gv-10" oninput="calcModalTotal('give')"></div>
+    <div class="modal-row"><label>$20 Bills</label><input type="number" min="0" placeholder="0" id="gv-20" oninput="calcModalTotal('give')"></div>
+    <div class="modal-row"><label>$50 Bills</label><input type="number" min="0" placeholder="0" id="gv-50" oninput="calcModalTotal('give')"></div>
+    <div class="modal-row"><label>$100 Bills</label><input type="number" min="0" placeholder="0" id="gv-100" oninput="calcModalTotal('give')"></div>
+    <div class="modal-total">
+      <div class="modal-total-label">Total Given Out</div>
+      <div class="modal-total-amt" id="give-modal-total">$0.00</div>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal('give')">Cancel</button>
+      <button class="modal-confirm give-modal" onclick="confirmGive()">Confirm ➖</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ RETURN FUNDS MODAL ══════════ -->
+<div class="modal-overlay" id="modal-return">
+  <div class="modal return-modal">
+    <div class="modal-title">➕ Return Funds</div>
+    <div class="modal-subtitle">Enter bills going back into Front of Store</div>
+    <div class="modal-section">💵 Bills Only</div>
+    <div class="modal-row"><label>$1 Bills</label><input type="number" min="0" placeholder="0" id="rt-1" oninput="calcModalTotal('return')"></div>
+    <div class="modal-row"><label>$5 Bills</label><input type="number" min="0" placeholder="0" id="rt-5" oninput="calcModalTotal('return')"></div>
+    <div class="modal-row"><label>$10 Bills</label><input type="number" min="0" placeholder="0" id="rt-10" oninput="calcModalTotal('return')"></div>
+    <div class="modal-row"><label>$20 Bills</label><input type="number" min="0" placeholder="0" id="rt-20" oninput="calcModalTotal('return')"></div>
+    <div class="modal-row"><label>$50 Bills</label><input type="number" min="0" placeholder="0" id="rt-50" oninput="calcModalTotal('return')"></div>
+    <div class="modal-row"><label>$100 Bills</label><input type="number" min="0" placeholder="0" id="rt-100" oninput="calcModalTotal('return')"></div>
+    <div class="modal-total">
+      <div class="modal-total-label">Total Returning</div>
+      <div class="modal-total-amt" id="return-modal-total">$0.00</div>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal('return')">Cancel</button>
+      <button class="modal-confirm return-modal" onclick="confirmReturn()">Confirm ➕</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STORE_KEY = 'cashCounter_3512';
+  const groupTotals   = {};
+  const sectionTotals = { front: 0, insafe: 0 };
+  const inputValues   = new Map();
+  let pickupCount = 0;
+  let safeBase    = 0;
+  let disbursements = []; // { id, note, amount, detail, time }
+
+  function fmt(n) {
+    return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  // ── Target indicator ─────────────────────────
+  function updateTarget() {
+    const target  = parseFloat(document.getElementById('target-amount').value) || 2600;
+    const current = (sectionTotals.front || 0) + (sectionTotals.insafe || 0);
+    const pct     = Math.min(100, (current / target) * 100);
+    const diff    = current - target;
+
+    document.getElementById('target-goal').textContent = fmt(target);
+    document.getElementById('target-current').textContent = fmt(current);
+
+    const fill = document.getElementById('progress-fill');
+    const cur  = document.getElementById('target-current');
+    const stat = document.getElementById('target-status');
+
+    fill.style.width = pct + '%';
+
+    if (current === 0) {
+      fill.style.background = 'rgba(255,255,255,0.1)';
+      cur.style.color = 'var(--text-muted)';
+      stat.style.color = 'var(--text-muted)';
+      stat.textContent = 'Enter your counts above';
+    } else if (pct >= 100 && diff === 0) {
+      fill.style.background = 'var(--green-ok)';
+      cur.style.color = 'var(--green-ok)';
+      stat.style.color = 'var(--green-ok)';
+      stat.textContent = '✓ Change fund is whole!';
+    } else if (diff > 0) {
+      fill.style.background = 'var(--orange)';
+      cur.style.color = 'var(--orange)';
+      stat.style.color = 'var(--orange)';
+      stat.textContent = fmt(diff) + ' over target';
+    } else {
+      const shortage = Math.abs(diff);
+      if (pct >= 85) {
+        fill.style.background = 'var(--orange)';
+        cur.style.color = 'var(--orange)';
+        stat.style.color = 'var(--orange)';
+      } else {
+        fill.style.background = 'var(--red)';
+        cur.style.color = 'var(--red)';
+        stat.style.color = 'var(--red)';
+      }
+      stat.textContent = fmt(shortage) + ' short — funds needed';
+    }
+  }
+
+  // ── Core update ──────────────────────────────
+  function update(input) {
+    const qty      = parseFloat(input.value) || 0;
+    const val      = parseFloat(input.dataset.value);
+    const group    = input.dataset.group;
+    const section  = input.dataset.section;
+    const rowTotal = input.closest('.row').querySelector('.row-total');
+
+    const lineTotal = qty * val;
+    rowTotal.textContent = qty > 0 ? fmt(lineTotal) : '—';
+    rowTotal.className   = 'row-total' + (qty > 0 ? '' : ' zero');
+
+    const prev = inputValues.get(input) || 0;
+    inputValues.set(input, lineTotal);
+
+    groupTotals[group] = (groupTotals[group] || 0) + (lineTotal - prev);
+    const dtEl = document.getElementById('dt-' + group);
+    if (dtEl) dtEl.textContent = fmt(Math.max(0, groupTotals[group]));
+
+    sectionTotals[section] = (sectionTotals[section] || 0) + (lineTotal - prev);
+    document.getElementById('subtotal-' + section).textContent = fmt(Math.max(0, sectionTotals[section]));
+
+    const cf = (sectionTotals.front || 0) + (sectionTotals.insafe || 0);
+    document.getElementById('change-fund-total').textContent = fmt(Math.max(0, cf));
+
+    updateTarget();
+    updateBreakdown();
+    updateCombined();
+    saveState();
+  }
+
+  // ── Adjust front total directly (give/return) ─
+  function adjustFront(amount) {
+    // amount can be negative (give) or positive (return)
+    sectionTotals.front = (sectionTotals.front || 0) + amount;
+    document.getElementById('subtotal-front').textContent = fmt(Math.max(0, sectionTotals.front));
+    const cf = (sectionTotals.front || 0) + (sectionTotals.insafe || 0);
+    document.getElementById('change-fund-total').textContent = fmt(Math.max(0, cf));
+    updateTarget();
+    updateCombined();
+    saveState();
+  }
+
+  // ── Breakdown ────────────────────────────────
+  function updateBreakdown() {
+    const bills = { 1:0, 5:0, 10:0, 20:0, 50:0, 100:0 };
+    document.querySelectorAll('input[data-bill]').forEach(inp => {
+      const denom = parseInt(inp.dataset.bill);
+      const qty   = parseFloat(inp.value) || 0;
+      const mult  = parseFloat(inp.dataset.billmult) || 1;
+      bills[denom] = (bills[denom] || 0) + (qty * mult);
+    });
+    [1,5,10,20,50,100].forEach(d => {
+      const el = document.getElementById('bd-bill-' + d);
+      const n = Math.round(bills[d] || 0);
+      el.textContent = n > 0 ? n + (n === 1 ? ' bill' : ' bills') : '—';
+      el.className = 'breakdown-val' + (n > 0 ? '' : ' zero');
+    });
+    const rolls = { nickel:0, dime:0, quarter:0 };
+    document.querySelectorAll('input[data-coin]').forEach(inp => {
+      const coin = inp.dataset.coin;
+      const qty  = parseFloat(inp.value) || 0;
+      const tray = parseFloat(inp.dataset.trayrolls) || 0;
+      rolls[coin] = (rolls[coin] || 0) + (tray > 0 ? qty * tray : qty);
+    });
+    ['nickel','dime','quarter'].forEach(d => {
+      const el = document.getElementById('bd-coin-' + d);
+      const n = rolls[d] || 0;
+      el.textContent = n > 0 ? n + (n === 1 ? ' roll' : ' rolls') : '—';
+      el.className = 'breakdown-val' + (n > 0 ? '' : ' zero');
+    });
+  }
+
+  // ── Tills ────────────────────────────────────
+  function updateTills() {
+    const count = parseFloat(document.getElementById('inp-tills').value) || 0;
+    const total = count * 100;
+    const rt = document.getElementById('rt-tills');
+    rt.textContent = count > 0 ? fmt(total) : '—';
+    rt.className = 'row-total' + (count > 0 ? '' : ' zero');
+    document.getElementById('dt-tills').textContent = fmt(total);
+    updateCombined();
+    saveState();
+  }
+
+  // ── Safe ─────────────────────────────────────
+  function updateSafe() {
+    const d = parseFloat(document.getElementById('inp-safe-dollars').value) || 0;
+    const c = parseFloat(document.getElementById('inp-safe-cents').value)   || 0;
+    safeBase = d + (c / 100);
+    recalcSafe();
+    saveState();
+  }
+
+  function addPickup(silent) {
+    pickupCount++;
+    const i = pickupCount;
+    const list = document.getElementById('pickup-list');
+    const div = document.createElement('div');
+    div.className = 'pickup-row';
+    div.id = 'pr-pickup-' + i;
+    div.innerHTML = `
+      <span class="pickup-label">Pickup ${i}</span>
+      <input type="number" min="0" placeholder="Amount" id="pickup-${i}" oninput="recalcSafe();saveState();" style="border-color:rgba(160,130,200,0.35);">
+      <span class="pickup-amt" id="pa-pickup-${i}">—</span>
+    `;
+    list.appendChild(div);
+    if (!silent) { recalcSafe(); saveState(); }
+  }
+
+  function recalcSafe() {
+    let total = safeBase;
+    for (let i = 1; i <= pickupCount; i++) {
+      const el = document.getElementById('pickup-' + i);
+      if (!el) continue;
+      const v = parseFloat(el.value) || 0;
+      total += v;
+      const pa = document.getElementById('pa-pickup-' + i);
+      if (pa) pa.textContent = v > 0 ? fmt(v) : '—';
+    }
+    document.getElementById('dt-safe').textContent = fmt(total);
+    updateCombined();
+  }
+
+  function updateCombined() {
+    const cf    = (sectionTotals.front || 0) + (sectionTotals.insafe || 0);
+    const tills = (parseFloat(document.getElementById('inp-tills').value) || 0) * 100;
+    const safeEl = document.getElementById('dt-safe').textContent.replace(/[$,]/g,'');
+    const safe  = parseFloat(safeEl) || 0;
+    document.getElementById('combined-total').textContent = fmt(Math.max(0, cf + tills + safe));
+  }
+
+  // ── Modal helpers ────────────────────────────
+  const GIVE_FIELDS  = [{id:'gv-nickel',val:2},{id:'gv-dime',val:5},{id:'gv-quarter',val:10},{id:'gv-1',val:1},{id:'gv-5',val:5},{id:'gv-10',val:10},{id:'gv-20',val:20},{id:'gv-50',val:50},{id:'gv-100',val:100}];
+  const RET_FIELDS   = [{id:'rt-1',val:1},{id:'rt-5',val:5},{id:'rt-10',val:10},{id:'rt-20',val:20},{id:'rt-50',val:50},{id:'rt-100',val:100}];
+
+  function calcModalTotal(type) {
+    const fields = type === 'give' ? GIVE_FIELDS : RET_FIELDS;
+    let total = 0;
+    fields.forEach(f => { total += (parseFloat(document.getElementById(f.id).value) || 0) * f.val; });
+    document.getElementById(type === 'give' ? 'give-modal-total' : 'return-modal-total').textContent = fmt(total);
+    return total;
+  }
+
+  function openModal(type) {
+    // clear fields
+    const fields = type === 'give' ? GIVE_FIELDS : RET_FIELDS;
+    fields.forEach(f => { document.getElementById(f.id).value = ''; });
+    if (type === 'give') document.getElementById('give-note').value = '';
+    document.getElementById(type === 'give' ? 'give-modal-total' : 'return-modal-total').textContent = '$0.00';
+    document.getElementById('modal-' + type).classList.add('open');
+  }
+
+  function closeModal(type) {
+    document.getElementById('modal-' + type).classList.remove('open');
+  }
+
+  function confirmGive() {
+    const total = calcModalTotal('give');
+    if (total <= 0) { alert('Please enter at least one item.'); return; }
+    const note = document.getElementById('give-note').value.trim() || 'Unknown';
+
+    // Build detail string
+    const parts = [];
+    GIVE_FIELDS.forEach(f => {
+      const qty = parseFloat(document.getElementById(f.id).value) || 0;
+      if (qty > 0) {
+        if (f.id.startsWith('gv-nickel')) parts.push(qty + ' nickel roll' + (qty>1?'s':''));
+        else if (f.id.startsWith('gv-dime'))   parts.push(qty + ' dime roll' + (qty>1?'s':''));
+        else if (f.id.startsWith('gv-quarter')) parts.push(qty + ' quarter roll' + (qty>1?'s':''));
+        else parts.push(qty + ' × $' + f.val);
+      }
+    });
+
+    // Add to log
+    const entry = {
+      id: Date.now(),
+      note,
+      amount: total,
+      detail: parts.join(', '),
+      time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+    };
+    disbursements.push(entry);
+    renderDisbLog();
+
+    // Deduct from front total
+    adjustFront(-total);
+    closeModal('give');
+    saveState();
+  }
+
+  function confirmReturn() {
+    const total = calcModalTotal('return');
+    if (total <= 0) { alert('Please enter at least one denomination.'); return; }
+
+    // Add back to front total
+    adjustFront(total);
+
+    // Clear the disbursement log after any return since funds have been reconciled
+    disbursements = [];
+    renderDisbLog();
+
+    closeModal('return');
+    saveState();
+  }
+
+  function renderDisbLog() {
+    const wrap = document.getElementById('disb-log-wrap');
+    const log  = document.getElementById('disb-log');
+    if (disbursements.length === 0) {
+      wrap.style.display = 'none';
+      log.innerHTML = '';
+      return;
+    }
+    wrap.style.display = 'block';
+    log.innerHTML = disbursements.map(d => `
+      <div class="disb-entry">
+        <div class="disb-entry-header">
+          <span class="disb-entry-name">${d.note}</span>
+          <span class="disb-entry-amt">-${fmt(d.amount)}</span>
+        </div>
+        <div class="disb-entry-detail">${d.detail}</div>
+        <div class="disb-entry-time">${d.time}</div>
+      </div>
+    `).join('');
+  }
+
+  // ── Save / Load ──────────────────────────────
+  function saveState() {
+    const data = {};
+    document.querySelectorAll('input[type="number"][id]').forEach(inp => {
+      if (inp.value !== '') data[inp.id] = inp.value;
+    });
+    data['__pickupCount']  = pickupCount;
+    data['__disbursements'] = JSON.stringify(disbursements);
+    data['__frontAdj']     = sectionTotals.front || 0;
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(data));
+      const badge = document.getElementById('saved-badge');
+      badge.textContent = '✓ Saved ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    } catch(e) {}
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+
+      // restore pickups first
+      const savedPickups = parseInt(data['__pickupCount']) || 0;
+      for (let i = 0; i < savedPickups; i++) addPickup(true);
+
+      // restore inputs
+      Object.keys(data).forEach(id => {
+        if (id.startsWith('__')) return;
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.value = data[id];
+        if (el.dataset && el.dataset.value) update(el);
+        else if (id === 'inp-tills') updateTills();
+        else if (id === 'inp-safe-dollars' || id === 'inp-safe-cents') updateSafe();
+      });
+
+      // restore disbursements
+      if (data['__disbursements']) {
+        disbursements = JSON.parse(data['__disbursements']);
+        renderDisbLog();
+      }
+
+      // restore front adjustment (give/return adjustments)
+      if (data['__frontAdj'] !== undefined) {
+        const savedFront = parseFloat(data['__frontAdj']) || 0;
+        const calcFront  = sectionTotals.front || 0;
+        const diff = savedFront - calcFront;
+        if (Math.abs(diff) > 0.01) {
+          sectionTotals.front = savedFront;
+          document.getElementById('subtotal-front').textContent = fmt(Math.max(0, savedFront));
+          const cf = savedFront + (sectionTotals.insafe || 0);
+          document.getElementById('change-fund-total').textContent = fmt(Math.max(0, cf));
+          updateTarget();
+          updateCombined();
+        }
+      }
+
+      recalcSafe();
+    } catch(e) {}
+  }
+
+  // ── Clear ─────────────────────────────────────
+  function clearAll() {
+    if (!confirm('Clear all entered values and disbursement log?')) return;
+    const savedTarget = document.getElementById('target-amount').value;
+    document.querySelectorAll('input[type="number"]').forEach(inp => {
+      if (inp.id === 'target-amount') return; // keep target value
+      inp.value = '';
+      inputValues.set(inp, 0);
+      const rt = inp.closest && inp.closest('.row') && inp.closest('.row').querySelector('.row-total');
+      if (rt) { rt.textContent = '—'; rt.className = 'row-total zero'; }
+    });
+    Object.keys(groupTotals).forEach(k => groupTotals[k] = 0);
+    Object.keys(sectionTotals).forEach(k => sectionTotals[k] = 0);
+    document.querySelectorAll('.denom-total').forEach(el => el.textContent = '$0.00');
+    document.getElementById('subtotal-front').textContent    = '$0.00';
+    document.getElementById('subtotal-insafe').textContent   = '$0.00';
+    document.getElementById('change-fund-total').textContent = '$0.00';
+    document.getElementById('dt-tills').textContent  = '$0.00';
+    document.getElementById('rt-tills').textContent  = '—';
+    document.getElementById('rt-tills').className    = 'row-total zero';
+    document.getElementById('dt-safe').textContent   = '$0.00';
+    document.getElementById('combined-total').textContent = '$0.00';
+    document.getElementById('pickup-list').querySelectorAll('.pickup-row').forEach(r => r.remove());
+    pickupCount = 0; safeBase = 0;
+    disbursements = [];
+    renderDisbLog();
+    updateBreakdown();
+    updateTarget();
+    // clear modal fields
+    const allModalInputs = ['gv-nickel','gv-dime','gv-quarter','gv-1','gv-5','gv-10','gv-20','gv-50','gv-100','give-note','rt-1','rt-5','rt-10','rt-20','rt-50','rt-100'];
+    allModalInputs.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+    document.getElementById('give-modal-total').textContent = '$0.00';
+    document.getElementById('return-modal-total').textContent = '$0.00';
+    // reset target display
+    document.getElementById('target-current').textContent = '$0.00';
+    document.getElementById('target-current').style.color = 'var(--text-muted)';
+    document.getElementById('progress-fill').style.width = '0%';
+    document.getElementById('target-status').textContent = 'Enter your counts above';
+    document.getElementById('target-status').style.color = 'var(--text-muted)';
+    try { localStorage.removeItem(STORE_KEY); } catch(e) {}
+    document.getElementById('saved-badge').textContent = '';
+  }
+
+  window.addEventListener('DOMContentLoaded', loadState);
+</script>
+</body>
+</html>
