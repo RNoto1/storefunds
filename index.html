@@ -431,8 +431,9 @@
   <div class="pickup-list" id="pickup-list">
     <div class="pickup-section-label">Pickups Added Throughout the Day</div>
   </div>
-  <div style="padding:0 12px 12px;">
+  <div style="padding:0 12px 12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
     <button class="add-pickup-btn" onclick="addPickup()">+ Add Pickup</button>
+    <button class="add-pickup-btn" onclick="clearSafeDeposits()" style="border-color:rgba(220,80,80,0.3);color:rgba(220,130,130,0.7);">🗑 Clear Safe</button>
   </div>
 </div>
 
@@ -862,6 +863,19 @@
 
       recalcSafe();
     } catch(e) {}
+  }
+
+  // ── Clear Safe Deposits ───────────────────────
+  function clearSafeDeposits() {
+    if (!confirm('Clear all safe deposit entries including starting balance and all pickups?')) return;
+    document.getElementById('inp-safe-dollars').value = '';
+    document.getElementById('inp-safe-cents').value   = '';
+    safeBase = 0;
+    document.getElementById('pickup-list').querySelectorAll('.pickup-row').forEach(r => r.remove());
+    pickupCount = 0;
+    document.getElementById('dt-safe').textContent = '$0.00';
+    updateCombined();
+    saveState();
   }
 
   // ── Clear ─────────────────────────────────────
