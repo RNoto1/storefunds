@@ -7,16 +7,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --green-dark: #1a2e1a;
-    --gold: #c9a84c;
-    --gold-light: #e8c96e;
+    --green-dark: #16261a;
+    --gold: #e0bb55;
+    --gold-light: #ffe082;
     --cream: #f5f0e8;
-    --text-light: #e8e0d0;
-    --text-muted: #9a9080;
-    --border: rgba(201,168,76,0.25);
-    --blue-light: #5a9abf;
+    --text-light: #f8f4ec;
+    --text-muted: #d8d0c0;
+    --border: rgba(224,187,85,0.45);
+    --blue-light: #7bc0e8;
     --blue-border: rgba(90,154,191,0.3);
-    --purple: #b89ad8;
+    --purple: #d0b0f0;
     --purple-border: rgba(160,130,200,0.35);
     --purple-bg: rgba(120,80,180,0.12);
     --red: #e05555;
@@ -44,42 +44,42 @@
   .sub-section-label { font-family: 'Oswald', sans-serif; font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(201,168,76,0.45); margin: 18px 0 8px 4px; display: flex; align-items: center; gap: 8px; }
   .sub-section-label::after { content: ''; flex: 1; height: 1px; background: rgba(201,168,76,0.12); }
 
-  .denom-card { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 14px; overflow: hidden; }
-  .denom-header { background: rgba(201,168,76,0.1); border-bottom: 1px solid var(--border); padding: 9px 16px; display: flex; align-items: center; gap: 10px; }
-  .denom-header h2 { font-family: 'Oswald', sans-serif; font-size: 0.95rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); }
-  .denom-header .denom-total { margin-left: auto; font-size: 0.9rem; font-weight: 600; color: var(--gold-light); background: rgba(201,168,76,0.12); padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border); min-width: 90px; text-align: right; }
+  .denom-card { background: #223328; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 14px; overflow: hidden; }
+  .denom-header { background: #2e4232; border-bottom: 1px solid var(--border); padding: 9px 16px; display: flex; align-items: center; gap: 10px; }
+  .denom-header h2 { font-family: 'Oswald', sans-serif; font-size: 1.05rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); }
+  .denom-header .denom-total { margin-left: auto; font-size: 1rem; font-weight: 600; color: var(--gold-light); background: rgba(224,187,85,0.2); padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border); min-width: 90px; text-align: right; }
 
-  .row { display: grid; grid-template-columns: 1fr 110px 100px; align-items: center; gap: 8px; padding: 9px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; }
+  .row { display: grid; grid-template-columns: 1fr 110px 100px; align-items: center; gap: 8px; padding: 9px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); transition: background 0.15s; }
   .row:last-child { border-bottom: none; }
-  .row:hover { background: rgba(255,255,255,0.03); }
-  .row.sub { padding-left: 28px; background: rgba(0,0,0,0.1); }
+  .row:hover { background: rgba(255,255,255,0.06); }
+  .row.sub { padding-left: 28px; background: rgba(0,0,0,0.25); }
   .row.sub:hover { background: rgba(0,0,0,0.15); }
-  .row label { font-size: 0.82rem; color: var(--text-muted); letter-spacing: 0.06em; }
-  .row label span { color: var(--text-light); font-weight: 600; }
-  .row label .hint { display: block; font-size: 0.7rem; color: rgba(154,144,128,0.65); margin-top: 1px; }
+  .row label { font-size: 0.92rem; color: var(--text-muted); letter-spacing: 0.06em; }
+  .row label span { color: #ffffff; font-weight: 600; }
+  .row label .hint { display: block; font-size: 0.78rem; color: rgba(196,187,168,0.85); margin-top: 1px; }
   .row.sub label span { color: #b8c8d8; }
   .row.sub label .hint { color: rgba(100,130,150,0.7); }
 
-  input[type="number"] { background: rgba(0,0,0,0.3); border: 1px solid rgba(201,168,76,0.2); border-radius: 4px; color: var(--cream); font-family: 'Source Code Pro', monospace; font-size: 0.9rem; padding: 6px 10px; width: 100%; text-align: center; transition: border-color 0.2s, background 0.2s; -moz-appearance: textfield; }
+  input[type="number"] { background: #0d160f; border: 1.5px solid rgba(224,187,85,0.6); border-radius: 4px; color: #ffffff; font-family: 'Source Code Pro', monospace; font-size: 1rem; padding: 6px 10px; width: 100%; text-align: center; transition: border-color 0.2s, background 0.2s; -moz-appearance: textfield; }
   input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
   input[type="number"]:focus { outline: none; border-color: var(--gold); background: rgba(0,0,0,0.45); }
   input[type="text"] { background: rgba(0,0,0,0.3); border: 1px solid rgba(201,168,76,0.2); border-radius: 4px; color: var(--cream); font-family: 'Source Code Pro', monospace; font-size: 0.85rem; padding: 6px 10px; width: 100%; transition: border-color 0.2s; }
   input[type="text"]:focus { outline: none; border-color: var(--gold); }
 
-  .row-total { font-size: 0.88rem; font-weight: 600; color: var(--gold-light); text-align: right; padding-right: 4px; min-height: 1.2em; }
-  .row-total.zero { color: rgba(154,144,128,0.4); }
+  .row-total { font-size: 0.98rem; font-weight: 600; color: var(--gold-light); text-align: right; padding-right: 4px; min-height: 1.2em; }
+  .row-total.zero { color: rgba(196,187,168,0.6); }
 
   /* In-Safe blue */
-  .denom-card.insafe { border-color: var(--blue-border); }
-  .denom-card.insafe .denom-header { background: rgba(58,106,138,0.15); border-bottom-color: var(--blue-border); }
+  .denom-card.insafe { border-color: rgba(123,192,232,0.5); background: #1c3038; }
+  .denom-card.insafe .denom-header { background: #1f3a4a; border-bottom-color: var(--blue-border); }
   .denom-card.insafe .denom-header h2 { color: var(--blue-light); }
   .denom-card.insafe .denom-header .denom-total { color: var(--blue-light); background: rgba(58,106,138,0.2); border-color: var(--blue-border); }
   .denom-card.insafe .row-total { color: var(--blue-light); }
   .denom-card.insafe input[type="number"]:focus { border-color: var(--blue-light); }
 
   /* Purple */
-  .denom-card.purple { border-color: var(--purple-border); }
-  .denom-card.purple .denom-header { background: var(--purple-bg); border-bottom-color: var(--purple-border); }
+  .denom-card.purple { border-color: rgba(208,176,240,0.5); background: #261d33; }
+  .denom-card.purple .denom-header { background: #2e2440; border-bottom-color: var(--purple-border); }
   .denom-card.purple .denom-header h2 { color: var(--purple); }
   .denom-card.purple .denom-header .denom-total { color: var(--purple); background: rgba(120,80,180,0.15); border-color: var(--purple-border); }
   .denom-card.purple .row-total { color: var(--purple); }
@@ -98,7 +98,7 @@
   .add-pickup-btn:hover { background: rgba(120,80,180,0.2); color: var(--purple); }
 
   /* Target indicator */
-  .target-bar { background: rgba(0,0,0,0.2); border-radius: 6px; padding: 14px 16px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.08); }
+  .target-bar { background: #1c2b20; border-radius: 6px; padding: 14px 16px; margin-bottom: 14px; border: 1px solid var(--border); }
   .target-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
   .target-label { font-family: 'Oswald', sans-serif; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
   .target-edit { display: flex; align-items: center; gap: 6px; }
@@ -154,15 +154,15 @@
   .disb-entry-amt { font-family: 'Oswald', sans-serif; font-size: 1rem; color: #e08080; }
   .disb-entry-time { font-size: 0.68rem; color: var(--text-muted); }
   .disb-entry-detail { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
-  .disb-empty { font-size: 0.78rem; color: rgba(154,144,128,0.4); text-align: center; padding: 10px; }
+  .disb-empty { font-size: 0.78rem; color: rgba(196,187,168,0.6); text-align: center; padding: 10px; }
 
   /* Totals */
   .totals-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 28px; }
-  .subtotal-box { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; }
+  .subtotal-box { background: #223328; border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; }
   .subtotal-box.insafe { border-color: var(--blue-border); }
-  .subtotal-label { font-family: 'Oswald', sans-serif; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .subtotal-label { font-family: 'Oswald', sans-serif; font-size: 0.78rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
   .subtotal-box.insafe .subtotal-label { color: #5a8aaa; }
-  .subtotal-amount { font-family: 'Oswald', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--gold-light); }
+  .subtotal-amount { font-family: 'Oswald', sans-serif; font-size: 1.55rem; font-weight: 700; color: var(--gold-light); }
   .subtotal-box.insafe .subtotal-amount { color: var(--blue-light); }
 
   .grand-total { margin-top: 14px; background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.06)); border: 2px solid var(--gold); border-radius: 8px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 0 30px rgba(201,168,76,0.1); }
@@ -171,15 +171,19 @@
   .combined-total-box { margin-top: 14px; background: linear-gradient(135deg, rgba(120,80,180,0.18), rgba(201,168,76,0.08)); border: 2px solid #9a70c8; border-radius: 8px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
 
   /* Breakdown */
-  .breakdown-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; margin-bottom: 14px; overflow: hidden; }
-  .breakdown-header { background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.07); padding: 9px 16px; }
+  .breakdown-card { background: #223328; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 14px; overflow: hidden; }
+  .breakdown-header { background: #2e4232; border-bottom: 1px solid var(--border); padding: 9px 16px; }
   .breakdown-header h3 { font-family: 'Oswald', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
-  .breakdown-row { display: grid; grid-template-columns: 1fr 1fr; padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .breakdown-row { display: grid; grid-template-columns: 1fr 1fr; padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); }
   .breakdown-row:last-child { border-bottom: none; }
-  .breakdown-key { font-size: 0.78rem; color: var(--text-muted); }
-  .breakdown-val { font-size: 0.88rem; font-weight: 600; color: var(--text-light); text-align: right; }
-  .breakdown-val.zero { color: rgba(154,144,128,0.35); }
+  .breakdown-key { font-size: 0.88rem; color: var(--text-muted); }
+  .breakdown-val { font-size: 0.98rem; font-weight: 600; color: var(--text-light); text-align: right; }
+  .breakdown-val.zero { color: rgba(196,187,168,0.55); }
 
+
+  /* Bigger Safe Deposits total */
+  #dt-safe { font-size: 1.5rem !important; padding: 6px 14px !important; min-width: 130px !important; font-weight: 700; }
+  .denom-card.purple .denom-header h2 { font-size: 1.05rem; }
   .clear-btn { display: block; width: 100%; margin-top: 16px; padding: 12px; background: transparent; border: 1px solid rgba(139,32,32,0.4); border-radius: 6px; color: rgba(200,100,100,0.7); font-family: 'Oswald', sans-serif; font-size: 0.85rem; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
   .clear-btn:hover { background: rgba(139,32,32,0.15); border-color: rgba(139,32,32,0.7); color: #e08080; }
 </style>
@@ -439,7 +443,7 @@
 
 <!-- ══════════ COMBINED GRAND TOTAL ══════════ -->
 <div class="combined-total-box">
-  <div class="grand-total-label" style="color:var(--purple);">Combined Grand Total</div>
+  <div class="grand-total-label" style="color:var(--purple);">Store Operating Fund</div>
   <div class="grand-total-amount" id="combined-total" style="color:#d4b8f0;text-shadow:0 0 20px rgba(180,140,240,0.4);">$0.00</div>
 </div>
 
