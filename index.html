@@ -2,8 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Store 3512 Cash Counter</title>
+<!-- PWA: hides browser chrome when launched from home screen -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cash Counter">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#16261a">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -626,7 +632,7 @@
   // ── Breakdown ────────────────────────────────
   function updateBreakdown() {
     const bills = { 1:0, 5:0, 10:0, 20:0, 50:0, 100:0 };
-    document.querySelectorAll('input[data-bill]').forEach(inp => {
+    document.querySelectorAll('input[type="number"][id]').forEach(inp => {
       const denom = parseInt(inp.dataset.bill);
       const qty   = parseFloat(inp.value) || 0;
       const mult  = parseFloat(inp.dataset.billmult) || 1;
@@ -639,7 +645,7 @@
       el.className = 'breakdown-val' + (n > 0 ? '' : ' zero');
     });
     const rolls = { nickel:0, dime:0, quarter:0 };
-    document.querySelectorAll('input[data-coin]').forEach(inp => {
+    document.querySelectorAll('input[type="number"][id]').forEach(inp => {
       const coin = inp.dataset.coin;
       const qty  = parseFloat(inp.value) || 0;
       const tray = parseFloat(inp.dataset.trayrolls) || 0;
@@ -674,7 +680,7 @@
     saveState();
   }
 
-  function addPickup(silent) {
+  function addPickup(silent, preloadValue) {
     pickupCount++;
     const i = pickupCount;
     const list = document.getElementById('pickup-list');
@@ -683,19 +689,54 @@
     div.id = 'pr-pickup-' + i;
     div.innerHTML = `
       <span class="pickup-label">Pickup ${i}</span>
-      <input type="number" min="0" placeholder="Amount" id="pickup-${i}" oninput="recalcSafe();saveState();" style="border-color:rgba(160,130,200,0.35);">
-      <span class="pickup-amt" id="pa-pickup-${i}">—</span>
+      <input type="number" min="0" placeholder="Amount" id="pickup-${i}"
+        style="border-color:rgba(160,130,200,0.35);"
+        onkeydown="if(event.key==='Enter')confirmPickup(${i});">
+      <button onclick="confirmPickup(${i})" title="Lock in pickup"
+        style="background:rgba(120,80,180,0.25);border:1px solid rgba(160,130,200,0.5);border-radius:4px;color:var(--purple);font-size:1rem;padding:4px 10px;cursor:pointer;flex-shrink:0;">&#10003;</button>
     `;
     list.appendChild(div);
+    if (preloadValue !== undefined) {
+      const inp = document.getElementById('pickup-' + i);
+      if (inp) inp.value = preloadValue;
+      confirmPickup(i, true);
+    } else if (!silent) {
+      document.getElementById('pickup-' + i).focus();
+    }
     if (!silent) { recalcSafe(); saveState(); }
+  }
+
+  function confirmPickup(i, silent) {
+    const inp = document.getElementById('pickup-' + i);
+    const row = document.getElementById('pr-pickup-' + i);
+    if (!row) return;
+    const v = inp ? (parseFloat(inp.value) || 0) : (parseFloat(row.dataset.value) || 0);
+    row.dataset.value = v;
+    row.innerHTML = `
+      <span class="pickup-label">Pickup ${i}</span>
+      <span class="pickup-amt" id="pa-pickup-${i}" style="flex:1;text-align:right;">${v > 0 ? fmt(v) : '&#8212;'}</span>
+      <button onclick="deletePickup(${i})" title="Delete pickup"
+        style="background:rgba(220,80,80,0.15);border:1px solid rgba(220,80,80,0.35);border-radius:4px;color:#e08080;font-size:0.85rem;padding:4px 9px;cursor:pointer;flex-shrink:0;">&#10005;</button>
+    `;
+    recalcSafe();
+    saveState();
+  }
+
+  function deletePickup(i) {
+    if (!confirm('Delete Pickup ' + i + '?')) return;
+    const row = document.getElementById('pr-pickup-' + i);
+    if (row) row.remove();
+    recalcSafe();
+    saveState();
   }
 
   function recalcSafe() {
     let total = safeBase;
     for (let i = 1; i <= pickupCount; i++) {
-      const el = document.getElementById('pickup-' + i);
-      if (!el) continue;
-      const v = parseFloat(el.value) || 0;
+      const row = document.getElementById('pr-pickup-' + i);
+      if (!row) continue;
+      const inp = document.getElementById('pickup-' + i);
+      const v = inp ? (parseFloat(inp.value) || 0) : (parseFloat(row.dataset.value) || 0);
       total += v;
       const pa = document.getElementById('pa-pickup-' + i);
       if (pa) pa.textContent = v > 0 ? fmt(v) : '—';
@@ -813,6 +854,11 @@
     document.querySelectorAll('input[type="number"][id]').forEach(inp => {
       if (inp.value !== '') data[inp.id] = inp.value;
     });
+    // save locked pickup values
+    for (let i = 1; i <= pickupCount; i++) {
+      const row = document.getElementById('pr-pickup-' + i);
+      if (row && row.dataset.value !== undefined) data['pickup-' + i] = row.dataset.value;
+    }
     data['__pickupCount']  = pickupCount;
     data['__disbursements'] = JSON.stringify(disbursements);
     data['__frontAdj']     = sectionTotals.front || 0;
@@ -829,19 +875,23 @@
       if (!raw) return;
       const data = JSON.parse(raw);
 
-      // restore pickups first
-      const savedPickups = parseInt(data['__pickupCount']) || 0;
-      for (let i = 0; i < savedPickups; i++) addPickup(true);
+      // restore pickups first (as locked entries)
+      const savedPickups = parseInt(data["__pickupCount"]) || 0;
+      for (let i = 1; i <= savedPickups; i++) {
+        const val = parseFloat(data["pickup-" + i]) || 0;
+        addPickup(true, val);
+      }
 
-      // restore inputs
+      // restore inputs (skip pickup inputs -- already locked above)
       Object.keys(data).forEach(id => {
-        if (id.startsWith('__')) return;
+        if (id.startsWith("__")) return;
+        if (id.startsWith("pickup-")) return;
         const el = document.getElementById(id);
         if (!el) return;
         el.value = data[id];
         if (el.dataset && el.dataset.value) update(el);
-        else if (id === 'inp-tills') updateTills();
-        else if (id === 'inp-safe-dollars' || id === 'inp-safe-cents') updateSafe();
+        else if (id === "inp-tills") updateTills();
+        else if (id === "inp-safe-dollars" || id === "inp-safe-cents") updateSafe();
       });
 
       // restore disbursements
@@ -886,7 +936,7 @@
   function clearAll() {
     if (!confirm('Clear all entered values and disbursement log?')) return;
     const savedTarget = document.getElementById('target-amount').value;
-    document.querySelectorAll('input[type="number"]').forEach(inp => {
+    document.querySelectorAll('input[type="number"][id]').forEach(inp => {
       if (inp.id === 'target-amount') return; // keep target value
       inp.value = '';
       inputValues.set(inp, 0);
