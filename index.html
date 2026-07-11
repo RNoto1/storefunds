@@ -43,6 +43,7 @@
   }
   header { text-align: center; margin-bottom: 32px; padding: 20px; border-bottom: 2px solid var(--gold); }
   header h1 { font-family: 'Oswald', sans-serif; font-size: 2.2rem; font-weight: 700; letter-spacing: 0.15em; color: var(--gold-light); text-transform: uppercase; text-shadow: 0 2px 12px rgba(201,168,76,0.3); }
+  header h1 .money-stack { width: 1.35em; height: 0.97em; vertical-align: -0.14em; margin-right: 4px; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4)); }
   header p { color: var(--text-muted); font-size: 0.8rem; letter-spacing: 0.1em; margin-top: 6px; }
   .saved-badge { display:inline-block; margin-top:8px; font-size:0.7rem; color:rgba(100,200,100,0.7); letter-spacing:0.1em; }
 
@@ -221,135 +222,33 @@
   #confetti-canvas { position: fixed; inset: 0; z-index: 300; pointer-events: none; }
 
 </style>
-
-<style id="polish">
-/* ══════════ POLISH LAYER ══════════ */
-:root { --radius: 14px; --shadow: 0 10px 28px rgba(0,0,0,.35), 0 2px 8px rgba(0,0,0,.28); }
-html { scroll-behavior: smooth; }
-body {
-  background:
-    radial-gradient(1100px 560px at 50% -8%, rgba(224,187,85,.08), transparent 60%),
-    radial-gradient(900px 520px at 100% 105%, rgba(120,80,180,.06), transparent 60%),
-    repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,0,0,.05) 40px, rgba(0,0,0,.05) 41px),
-    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(0,0,0,.05) 40px, rgba(0,0,0,.05) 41px),
-    #132116;
-  padding: 20px 14px 96px;
-}
-header { max-width: 1240px; margin: 0 auto 22px; border-bottom: none; padding: 16px 44px 22px; }
-header::after { content:''; position:absolute; left:50%; bottom:0; transform:translateX(-50%); width:min(440px,85%); height:2px; background:linear-gradient(90deg, transparent, var(--gold), transparent); }
-header h1 { background:linear-gradient(180deg,#ffe9a0,#d9ac3e); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:none; filter:drop-shadow(0 3px 12px rgba(224,187,85,.28)); }
-
-/* Cards */
-.denom-card, .breakdown-card, .target-bar, .subtotal-box {
-  border-radius: var(--radius); box-shadow: var(--shadow);
-  transition: border-color .18s ease, box-shadow .18s ease;
-}
-.denom-card:focus-within { border-color: var(--gold); box-shadow: 0 0 0 1px rgba(224,187,85,.4), var(--shadow); }
-.denom-card.insafe:focus-within { border-color: var(--blue-light); box-shadow: 0 0 0 1px rgba(123,192,232,.4), var(--shadow); }
-.denom-card.purple:focus-within { border-color: var(--purple); box-shadow: 0 0 0 1px rgba(208,176,240,.4), var(--shadow); }
-.denom-header { background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0)), #2e4232; }
-.denom-card.insafe .denom-header { background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0)), #1f3a4a; }
-.denom-card.purple .denom-header { background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0)), #2e2440; }
-
-/* Inputs */
-input[type="number"] { border-radius: 9px; padding: 9px 10px; font-size: 1.05rem; background: #0b130d; scroll-margin: 140px; }
-input[type="number"]:focus { border-color: var(--gold-light); box-shadow: 0 0 0 3px rgba(224,187,85,.16); }
-.denom-card.insafe input[type="number"]:focus { box-shadow: 0 0 0 3px rgba(123,192,232,.16); }
-.denom-card.purple input[type="number"]:focus, .pickup-row input:focus { box-shadow: 0 0 0 3px rgba(208,176,240,.16); }
-input[type="text"] { border-radius: 9px; }
-
-/* Buttons */
-.action-btn, .backup-btn, .modal-confirm, .modal-cancel, .clear-btn, .add-pickup-btn, .backup-code-btn { border-radius: 10px; transition: all .18s ease; }
-.action-btn:hover, .backup-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,.3); }
-.action-btn:active, .backup-btn:active { transform: translateY(0); }
-
-/* Target indicator */
-.target-bar { padding: 16px 18px; }
-.progress-track { height: 14px; border-radius: 999px; background: rgba(0,0,0,.38); box-shadow: inset 0 2px 5px rgba(0,0,0,.5); }
-.progress-fill { border-radius: 999px; position: relative; transition: width .55s cubic-bezier(.22,1,.36,1), box-shadow .4s; }
-.progress-fill::after { content:''; position:absolute; inset:0; border-radius:999px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.32), transparent);
-  background-size: 200% 100%; animation: shimmer 2.4s linear infinite; }
-@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-.progress-fill[data-state="ok"]   { background: linear-gradient(90deg,#2f9e4f,#6fdc82) !important; box-shadow: 0 0 16px rgba(85,192,85,.55); }
-.progress-fill[data-state="over"], .progress-fill[data-state="near"] { background: linear-gradient(90deg,#c67a28,#f0b45a) !important; box-shadow: 0 0 12px rgba(224,144,64,.45); }
-.progress-fill[data-state="low"]  { background: linear-gradient(90deg,#b83b3b,#e56a5a) !important; box-shadow: 0 0 12px rgba(224,85,85,.4); }
-.progress-fill[data-state="empty"] { background: rgba(255,255,255,.08) !important; box-shadow: none; }
-.progress-fill[data-state="empty"]::after { animation: none; background: none; }
-.target-current { font-size: 1.75rem; }
-
-/* Big totals */
-.grand-total, .combined-total-box { border-radius: 16px; box-shadow: var(--shadow), 0 0 34px rgba(224,187,85,.08); }
-.combined-total-box { box-shadow: var(--shadow), 0 0 34px rgba(150,110,220,.1); }
-
-/* Animated number bump */
-@keyframes bumpPop { 0% { transform: scale(1); filter: brightness(1); } 35% { transform: scale(1.1); filter: brightness(1.35); } 100% { transform: scale(1); filter: brightness(1); } }
-.bump { animation: bumpPop .32s ease; }
-.denom-total, .row-total, .subtotal-amount, .grand-total-amount, .modal-total-amt { transform-origin: right center; }
-.target-current, .hud-amt { transform-origin: left center; }
-
-/* Modals */
-.modal-overlay { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
-.modal { border-radius: 16px; box-shadow: 0 24px 60px rgba(0,0,0,.55); }
-
-/* ══════════ LAYOUT: mobile = classic order, desktop = 2-col dashboard ══════════ */
-.layout { display: flex; flex-direction: column; max-width: 640px; margin: 0 auto; }
-.col-side { display: contents; }
-.side-top { order: 1; } .main-a { order: 2; } .side-bottom { order: 3; } .main-b { order: 4; }
-
-/* ══════════ STICKY LIVE TOTAL HUD (phone) ══════════ */
-.hud { position: fixed; left: 0; right: 0; bottom: 0; z-index: 90;
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 9px 18px calc(9px + env(safe-area-inset-bottom));
-  background: rgba(11,19,13,.93); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid rgba(224,187,85,.4); box-shadow: 0 -8px 24px rgba(0,0,0,.4); cursor: pointer; }
-.hud-label { display: block; font-family: 'Oswald', sans-serif; font-size: .6rem; letter-spacing: .2em; text-transform: uppercase; color: var(--text-muted); }
-.hud-amt { font-family: 'Oswald', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--gold-light); line-height: 1.1; display: inline-block; }
-.hud-status { font-size: .68rem; letter-spacing: .05em; text-align: right; color: var(--text-muted); max-width: 55%; }
-.hud-status.ok { color: var(--green-ok); } .hud-status.near, .hud-status.over { color: var(--orange); } .hud-status.low { color: var(--red); }
-
-@media (min-width: 1000px) {
-  body { padding-bottom: 48px; }
-  .hud { display: none; }
-  .layout { display: grid; max-width: 1240px; grid-template-columns: minmax(0,1fr) 400px; grid-template-rows: auto 1fr; gap: 0 26px; align-items: start; }
-  .col-side { display: block; grid-column: 2; grid-row: 1 / span 2; position: sticky; top: 14px;
-    max-height: calc(100vh - 28px); overflow-y: auto; padding: 2px 8px 24px 2px;
-    scrollbar-width: thin; scrollbar-color: rgba(224,187,85,.3) transparent; }
-  .main-a { grid-column: 1; grid-row: 1; }
-  .main-b { grid-column: 1; grid-row: 2; }
-  /* cards flow two-up inside the main column */
-  .main-a, .main-b { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
-  .main-a > .page-section-label, .main-a > .sub-section-label,
-  .main-b > .page-section-label { grid-column: 1 / -1; margin: 16px 0 0 4px; }
-  .main-a > .denom-card, .main-b > .breakdown-card { margin-bottom: 0; }
-  .main-b > .backup-btns, .main-b > .clear-btn { grid-column: 1 / -1; }
-  .main-b > .clear-btn { margin-top: 2px; }
-  /* compact the sticky rail */
-  .col-side .totals-strip { margin-top: 20px; }
-  .col-side .grand-total, .col-side .combined-total-box { padding: 15px 18px; }
-  .col-side .grand-total-amount { font-size: 1.55rem; }
-  .col-side .grand-total-label { font-size: .92rem; }
-  .col-side .subtotal-amount { font-size: 1.3rem; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .progress-fill::after { animation: none; }
-  .bump { animation: none; }
-  html { scroll-behavior: auto; }
-}
-</style>
 </head>
 <body>
 
 <header>
-  <h1>💵 Store 3512</h1>
+  <h1><svg class="money-stack" viewBox="0 0 64 46" aria-hidden="true">
+    <!-- bottom bill -->
+    <rect x="7" y="32" width="50" height="11" rx="2" fill="#256b3c" stroke="#143c22" stroke-width="1.5"/>
+    <!-- middle bill -->
+    <rect x="4" y="21" width="56" height="12" rx="2" fill="#2f8a4d" stroke="#143c22" stroke-width="1.5"/>
+    <!-- top bill -->
+    <rect x="2" y="8" width="60" height="14" rx="2" fill="#3fae63" stroke="#143c22" stroke-width="1.5"/>
+    <rect x="6" y="11" width="52" height="8" rx="1" fill="none" stroke="#d9f2e0" stroke-width="1" opacity="0.75"/>
+    <ellipse cx="13" cy="15" rx="4.5" ry="4" fill="#256b3c" stroke="#d9f2e0" stroke-width="0.9"/>
+    <ellipse cx="51" cy="15" rx="4.5" ry="4" fill="#256b3c" stroke="#d9f2e0" stroke-width="0.9"/>
+    <!-- paper band strap around the stack -->
+    <rect x="25" y="5" width="14" height="41" rx="1.5" fill="#f5f0e8"/>
+    <rect x="25" y="5" width="14" height="41" rx="1.5" fill="none" stroke="#c9a84c" stroke-width="1"/>
+    <text x="32" y="29" text-anchor="middle" font-size="11" font-weight="bold" fill="#2f8a4d" font-family="Georgia, serif">$</text>
+  </svg> Store 3512</h1>
   <p>Cash Counter — totals calculate automatically</p>
   <div class="saved-badge" id="saved-badge"></div>
   <button class="sound-toggle" id="sound-toggle" onclick="toggleSound()" title="Toggle target-hit sound">🔊</button>
 </header>
 
-<div class="layout">
-<aside class="col-side">
-<div class="side-top">
+<!-- ══════════ FRONT OF STORE CHANGE FUND ══════════ -->
+<div class="page-section-label">🏪 Front of Store Change Fund</div>
+
 <!-- Target Indicator -->
 <div class="target-bar">
   <div class="target-row">
@@ -378,36 +277,6 @@ input[type="text"] { border-radius: 9px; }
   <div style="font-family:'Oswald',sans-serif;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(220,80,80,0.6);margin-bottom:8px;">Outstanding Disbursements</div>
   <div class="disb-log" id="disb-log"></div>
 </div>
-</div>
-<div class="side-bottom">
-<!-- ══════════ SUBTOTALS + CHANGE FUND TOTAL ══════════ -->
-<div class="totals-strip">
-  <div class="subtotal-box">
-    <div class="subtotal-label">Front of Store</div>
-    <div class="subtotal-amount" id="subtotal-front">$0.00</div>
-  </div>
-  <div class="subtotal-box insafe">
-    <div class="subtotal-label">In Safe</div>
-    <div class="subtotal-amount" id="subtotal-insafe">$0.00</div>
-  </div>
-</div>
-
-<div class="grand-total">
-  <div class="grand-total-label">Change Fund Total</div>
-  <div class="grand-total-amount" id="change-fund-total">$0.00</div>
-</div>
-
-<!-- ══════════ COMBINED GRAND TOTAL ══════════ -->
-<div class="combined-total-box">
-  <div class="grand-total-label" style="color:var(--purple);">Store Operating Fund</div>
-  <div class="grand-total-amount" id="combined-total" style="color:#d4b8f0;text-shadow:0 0 20px rgba(180,140,240,0.4);">$0.00</div>
-</div>
-</div>
-</aside>
-
-<div class="col-main main-a">
-<!-- ══════════ FRONT OF STORE CHANGE FUND ══════════ -->
-<div class="page-section-label">🏪 Front of Store Change Fund</div>
 
 <div class="sub-section-label">🪙 Coin Rolls</div>
 
@@ -564,6 +433,23 @@ input[type="text"] { border-radius: 9px; }
   </div>
 </div>
 
+<!-- ══════════ SUBTOTALS + CHANGE FUND TOTAL ══════════ -->
+<div class="totals-strip">
+  <div class="subtotal-box">
+    <div class="subtotal-label">Front of Store</div>
+    <div class="subtotal-amount" id="subtotal-front">$0.00</div>
+  </div>
+  <div class="subtotal-box insafe">
+    <div class="subtotal-label">In Safe</div>
+    <div class="subtotal-amount" id="subtotal-insafe">$0.00</div>
+  </div>
+</div>
+
+<div class="grand-total">
+  <div class="grand-total-label">Change Fund Total</div>
+  <div class="grand-total-amount" id="change-fund-total">$0.00</div>
+</div>
+
 <!-- ══════════ UNISSUED TILLS ══════════ -->
 <div class="page-section-label">🗂 Unissued Tills</div>
 <div class="denom-card purple">
@@ -585,15 +471,25 @@ input[type="text"] { border-radius: 9px; }
     <h2>Safe Deposits</h2>
     <div class="denom-total" id="dt-safe">$0.00</div>
   </div>
-  <div class="row" style="grid-template-columns:1fr 120px 120px;padding:12px 16px;gap:8px;">
-    <label><span>Starting Balance</span><span class="hint">Current amount in safe</span></label>
-    <div style="display:flex;flex-direction:column;gap:3px;">
-      <input type="number" min="0" placeholder="Dollars" id="inp-safe-dollars" oninput="updateSafe()">
-      <div style="font-size:0.62rem;text-align:center;color:rgba(160,130,200,0.5);letter-spacing:0.08em;">DOLLARS</div>
+  <div class="row" style="display:block;padding:12px 16px;">
+    <label style="display:block;margin-bottom:8px;"><span>Starting Balance</span><span class="hint">Type the amount, then press &#10003; Set (or Enter) to lock it in</span></label>
+    <div id="safe-start-entry" style="display:flex;gap:8px;align-items:flex-start;">
+      <div style="display:flex;flex-direction:column;gap:3px;flex:1;">
+        <input type="number" min="0" step="1" inputmode="numeric" placeholder="Dollars" id="inp-safe-dollars" onkeydown="if(event.key==='Enter')setSafeStart();">
+        <div style="font-size:0.62rem;text-align:center;color:rgba(160,130,200,0.5);letter-spacing:0.08em;">DOLLARS</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:3px;flex:1;">
+        <input type="number" min="0" max="99" step="1" inputmode="numeric" placeholder="Cents" id="inp-safe-cents" onkeydown="if(event.key==='Enter')setSafeStart();">
+        <div style="font-size:0.62rem;text-align:center;color:rgba(160,130,200,0.5);letter-spacing:0.08em;">CENTS</div>
+      </div>
+      <button onclick="setSafeStart()" title="Lock in starting balance"
+        style="background:rgba(120,80,180,0.25);border:1px solid rgba(160,130,200,0.5);border-radius:4px;color:var(--purple);font-family:'Oswald',sans-serif;font-size:0.85rem;letter-spacing:0.08em;padding:8px 14px;cursor:pointer;flex-shrink:0;">&#10003; SET</button>
     </div>
-    <div style="display:flex;flex-direction:column;gap:3px;">
-      <input type="number" min="0" max="99" placeholder="Cents" id="inp-safe-cents" oninput="updateSafe()">
-      <div style="font-size:0.62rem;text-align:center;color:rgba(160,130,200,0.5);letter-spacing:0.08em;">CENTS</div>
+    <div id="safe-start-locked" style="display:none;align-items:center;gap:10px;background:rgba(120,80,180,0.1);border:1px solid rgba(160,130,200,0.3);border-radius:4px;padding:8px 12px;">
+      <span style="font-size:0.72rem;color:rgba(160,130,200,0.7);letter-spacing:0.08em;">&#128274; LOCKED IN</span>
+      <span class="pickup-amt" id="safe-start-amt" style="flex:1;text-align:right;font-size:1.1rem;">$0.00</span>
+      <button onclick="editSafeStart()" title="Edit starting balance"
+        style="background:rgba(120,80,180,0.15);border:1px solid rgba(160,130,200,0.4);border-radius:4px;color:var(--purple);font-size:0.8rem;padding:6px 12px;cursor:pointer;flex-shrink:0;">&#9998; Edit</button>
     </div>
   </div>
   <div class="pickup-list" id="pickup-list">
@@ -605,9 +501,12 @@ input[type="text"] { border-radius: 9px; }
   </div>
 </div>
 
-</div><!-- /main-a -->
+<!-- ══════════ COMBINED GRAND TOTAL ══════════ -->
+<div class="combined-total-box">
+  <div class="grand-total-label" style="color:var(--purple);">Store Operating Fund</div>
+  <div class="grand-total-amount" id="combined-total" style="color:#d4b8f0;text-shadow:0 0 20px rgba(180,140,240,0.4);">$0.00</div>
+</div>
 
-<div class="col-main main-b">
 <!-- ══════════ CHANGE FUND BREAKDOWN ══════════ -->
 <div class="page-section-label">🔢 Change Fund Breakdown</div>
 <div class="breakdown-card">
@@ -634,19 +533,6 @@ input[type="text"] { border-radius: 9px; }
 </div>
 
 <button class="clear-btn" onclick="clearAll()">⟳ Clear All</button>
-
-</div><!-- /main-b -->
-</div><!-- /layout -->
-
-<!-- ══════════ STICKY LIVE TOTAL HUD (mobile) ══════════ -->
-<div class="hud" id="hud" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Jump to target">
-  <div class="hud-left">
-    <span class="hud-label">Change Fund</span>
-    <span class="hud-amt" id="hud-amt">$0.00</span>
-  </div>
-  <div class="hud-status" id="hud-status">counting…</div>
-</div>
-
 
 <!-- ══════════ GIVE CHANGE MODAL ══════════ -->
 <div class="modal-overlay" id="modal-give">
@@ -13155,7 +13041,10 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
   const sectionTotals = { front: 0, insafe: 0 };
   const inputValues   = new Map();
   let pickupCount = 0;
-  let safeBase    = 0;
+  let safeBase      = 0;      // starting balance in dollars (derived from safeBaseCents)
+  let safeBaseCents = 0;      // starting balance in whole cents — source of truth
+  let safeSet       = false;  // has the starting balance been locked in?
+  let safeTotal     = 0;      // full safe total (base + pickups), in dollars
   let disbursements = []; // { id, note, amount, detail, time }
 
   function fmt(n) {
@@ -13299,12 +13188,37 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
   }
 
   // ── Safe ─────────────────────────────────────
-  function updateSafe() {
-    const d = parseFloat(document.getElementById('inp-safe-dollars').value) || 0;
-    const c = parseFloat(document.getElementById('inp-safe-cents').value)   || 0;
-    safeBase = d + (c / 100);
+  // Starting balance is only committed when the user locks it in
+  // (✓ Set button or Enter). Nothing tenders while typing.
+  function setSafeStart() {
+    const dEl = document.getElementById('inp-safe-dollars');
+    const cEl = document.getElementById('inp-safe-cents');
+    const d = Math.max(0, Math.floor(parseFloat(dEl.value) || 0));
+    const c = Math.max(0, Math.floor(parseFloat(cEl.value) || 0));
+    // all math in whole cents — no floating-point drift
+    safeBaseCents = d * 100 + c;
+    safeBase = safeBaseCents / 100;
+    safeSet = true;
+    renderSafeStart();
     recalcSafe();
     saveState();
+  }
+
+  function editSafeStart() {
+    const dEl = document.getElementById('inp-safe-dollars');
+    const cEl = document.getElementById('inp-safe-cents');
+    dEl.value = Math.floor(safeBaseCents / 100) || '';
+    cEl.value = (safeBaseCents % 100) || '';
+    document.getElementById('safe-start-entry').style.display = 'flex';
+    document.getElementById('safe-start-locked').style.display = 'none';
+    // totals keep the last locked value until the user hits ✓ Set again
+    dEl.focus();
+  }
+
+  function renderSafeStart() {
+    document.getElementById('safe-start-amt').textContent = fmt(safeBaseCents / 100);
+    document.getElementById('safe-start-entry').style.display = 'none';
+    document.getElementById('safe-start-locked').style.display = 'flex';
   }
 
   function addPickup(silent, preloadValue) {
@@ -13345,8 +13259,9 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       <button onclick="deletePickup(${i})" title="Delete pickup"
         style="background:rgba(220,80,80,0.15);border:1px solid rgba(220,80,80,0.35);border-radius:4px;color:#e08080;font-size:0.85rem;padding:4px 9px;cursor:pointer;flex-shrink:0;">&#10005;</button>
     `;
-    recalcSafe();
-    saveState();
+    // during a silent restore, don't recalc/save yet — loadState finishes with
+    // a full recalc, and saving here would overwrite storage with partial data
+    if (!silent) { recalcSafe(); saveState(); }
   }
 
   function deletePickup(i) {
@@ -13358,27 +13273,28 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
   }
 
   function recalcSafe() {
-    let total = safeBase;
+    // work entirely in whole cents to avoid floating-point drift
+    let cents = safeBaseCents;
     for (let i = 1; i <= pickupCount; i++) {
       const row = document.getElementById('pr-pickup-' + i);
       if (!row) continue;
       const inp = document.getElementById('pickup-' + i);
       const v = inp ? (parseFloat(inp.value) || 0) : (parseFloat(row.dataset.value) || 0);
-      total += v;
+      cents += Math.round(v * 100);
       const pa = document.getElementById('pa-pickup-' + i);
       if (pa) pa.textContent = v > 0 ? fmt(v) : '—';
     }
-    document.getElementById('dt-safe').textContent = fmt(total);
+    safeTotal = cents / 100;
+    document.getElementById('dt-safe').textContent = fmt(safeTotal);
     updateCombined();
   }
 
   function updateCombined() {
     const cf    = (sectionTotals.front || 0) + (sectionTotals.insafe || 0);
     const tills = (parseFloat(document.getElementById('inp-tills').value) || 0) * 100;
-    const safeNode = document.getElementById('dt-safe');
-    const safeEl = (safeNode.dataset.final !== undefined ? safeNode.dataset.final : safeNode.textContent).replace(/[$,]/g,'');
-    const safe  = parseFloat(safeEl) || 0;
-    document.getElementById('combined-total').textContent = fmt(Math.max(0, cf + tills + safe));
+    // use the numeric safe total directly — never re-parse displayed text
+    const total = Math.round((cf + tills + safeTotal) * 100) / 100;
+    document.getElementById('combined-total').textContent = fmt(Math.max(0, total));
   }
 
   // ── Modal helpers ────────────────────────────
@@ -13480,8 +13396,11 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
   function saveState() {
     const data = {};
     document.querySelectorAll('input[type="number"][id]').forEach(inp => {
+      // dollars/cents boxes are transient typing space — the locked value is saved below
+      if (inp.id === 'inp-safe-dollars' || inp.id === 'inp-safe-cents') return;
       if (inp.value !== '') data[inp.id] = inp.value;
     });
+    if (safeSet) data['__safeBaseCents'] = safeBaseCents;
     // save locked pickup values
     for (let i = 1; i <= pickupCount; i++) {
       const row = document.getElementById('pr-pickup-' + i);
@@ -13514,13 +13433,29 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       Object.keys(data).forEach(id => {
         if (id.startsWith("__")) return;
         if (id.startsWith("pickup-")) return;
+        if (id === "inp-safe-dollars" || id === "inp-safe-cents") return; // handled below
         const el = document.getElementById(id);
         if (!el) return;
         el.value = data[id];
         if (el.dataset && el.dataset.value) update(el);
         else if (id === "inp-tills") updateTills();
-        else if (id === "inp-safe-dollars" || id === "inp-safe-cents") updateSafe();
       });
+
+      // restore locked starting balance (with fallback for backups made
+      // before the lock-in upgrade, which saved raw dollars/cents fields)
+      if (data['__safeBaseCents'] !== undefined) {
+        safeBaseCents = Math.max(0, parseInt(data['__safeBaseCents']) || 0);
+        safeSet = true;
+      } else if (data['inp-safe-dollars'] !== undefined || data['inp-safe-cents'] !== undefined) {
+        const d = Math.floor(parseFloat(data['inp-safe-dollars']) || 0);
+        const c = Math.floor(parseFloat(data['inp-safe-cents']) || 0);
+        safeBaseCents = Math.max(0, d * 100 + c);
+        safeSet = true;
+      }
+      if (safeSet) {
+        safeBase = safeBaseCents / 100;
+        renderSafeStart();
+      }
 
       // restore disbursements
       if (data['__disbursements']) {
@@ -13552,7 +13487,9 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     if (!confirm('Clear all safe deposit entries including starting balance and all pickups?')) return;
     document.getElementById('inp-safe-dollars').value = '';
     document.getElementById('inp-safe-cents').value   = '';
-    safeBase = 0;
+    safeBase = 0; safeBaseCents = 0; safeSet = false; safeTotal = 0;
+    document.getElementById('safe-start-entry').style.display = 'flex';
+    document.getElementById('safe-start-locked').style.display = 'none';
     document.getElementById('pickup-list').querySelectorAll('.pickup-row').forEach(r => r.remove());
     pickupCount = 0;
     document.getElementById('dt-safe').textContent = '$0.00';
@@ -13583,7 +13520,9 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     document.getElementById('dt-safe').textContent   = '$0.00';
     document.getElementById('combined-total').textContent = '$0.00';
     document.getElementById('pickup-list').querySelectorAll('.pickup-row').forEach(r => r.remove());
-    pickupCount = 0; safeBase = 0;
+    pickupCount = 0; safeBase = 0; safeBaseCents = 0; safeSet = false; safeTotal = 0;
+    document.getElementById('safe-start-entry').style.display = 'flex';
+    document.getElementById('safe-start-locked').style.display = 'none';
     disbursements = [];
     renderDisbLog();
     updateBreakdown();
@@ -13829,109 +13768,5 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     location.reload();
   }
 </script>
-
-<script>
-/* ══════════ ENHANCEMENTS: Enter-key nav · animated totals · target + HUD ══════════ */
-(function () {
-  let uiReady = false;
-  window.addEventListener('DOMContentLoaded', function () {
-    setTimeout(function () { uiReady = true; refreshTargetExtras(); }, 300);
-  });
-
-  /* ── Enter jumps to the next field (Shift+Enter goes back) ── */
-  document.addEventListener('keydown', function (e) {
-    if (e.key !== 'Enter') return;
-    var t = e.target;
-    if (!t.matches || !t.matches('input[type="number"], input[type="text"]')) return;
-    if (t.id && t.id.indexOf('pickup-') === 0) return; // pickups: Enter locks them in (existing behavior)
-    e.preventDefault();
-    var scope = t.closest('.modal') || document;
-    var fields = Array.prototype.filter.call(
-      scope.querySelectorAll('input[type="number"], input[type="text"]'),
-      function (el) {
-        return el.offsetParent !== null && !el.disabled && !el.readOnly &&
-               !(el.id && el.id.indexOf('pickup-') === 0);
-      });
-    var i = fields.indexOf(t);
-    var next = e.shiftKey ? fields[i - 1] : fields[i + 1];
-    if (next) { next.focus(); if (next.select) next.select(); }
-    else { t.blur(); }
-  });
-  /* select the current value on focus so typing overwrites it */
-  document.addEventListener('focusin', function (e) {
-    if (e.target.matches && e.target.matches('input[type="number"]') && e.target.select) {
-      try { e.target.select(); } catch (err) {}
-    }
-  });
-  document.querySelectorAll('input').forEach(function (el) { el.setAttribute('enterkeyhint', 'next'); });
-
-  /* ── Animated money tickers ── */
-  var SEL = '.denom-total, .subtotal-amount, .grand-total-amount, .row-total, .target-current, .modal-total-amt, .hud-amt';
-  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function parseMoney(t) { var v = parseFloat(String(t).replace(/[$,]/g, '')); return isNaN(v) ? null : v; }
-  var obs = new MutationObserver(function (list) {
-    var seen = [];
-    list.forEach(function (m) {
-      var el = m.target.nodeType === 3 ? m.target.parentElement : m.target;
-      if (el && el.closest) el = el.closest(SEL);
-      if (!el || seen.indexOf(el) !== -1) return;
-      seen.push(el);
-      var text = el.textContent;
-      if (text === el.dataset.shown) return; /* our own animation frame */
-      el.dataset.final = text;
-      var to = parseMoney(text);
-      var from = parseMoney(el.dataset.shown);
-      el.dataset.shown = text;
-      if (!uiReady) return;
-      el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
-      if (reduced || to === null || from === null || from === to) return;
-      if (el._raf) cancelAnimationFrame(el._raf);
-      var t0 = performance.now(), dur = 340;
-      function tick(now) {
-        var p = Math.min(1, (now - t0) / dur);
-        var ease = 1 - Math.pow(1 - p, 3);
-        var txt = p < 1 ? fmt(from + (to - from) * ease) : el.dataset.final;
-        el.dataset.shown = txt;
-        el.textContent = txt;
-        el._raf = p < 1 ? requestAnimationFrame(tick) : null;
-      }
-      el._raf = requestAnimationFrame(tick);
-    });
-  });
-  document.querySelectorAll(SEL).forEach(function (el) {
-    el.dataset.shown = el.textContent;
-    obs.observe(el, { childList: true, characterData: true, subtree: true });
-  });
-
-  /* ── Upgraded target indicator + live HUD ── */
-  function refreshTargetExtras() {
-    var fill = document.getElementById('progress-fill');
-    var stat = document.getElementById('target-status');
-    var target = parseFloat(document.getElementById('target-amount').value) || 2600;
-    var current = (sectionTotals.front || 0) + (sectionTotals.insafe || 0);
-    var pct = target > 0 ? Math.min(100, (current / target) * 100) : 0;
-    var diff = current - target;
-    var state = 'empty';
-    if (current > 0) state = (pct >= 100 && diff === 0) ? 'ok' : (diff > 0 ? 'over' : (pct >= 85 ? 'near' : 'low'));
-    fill.style.background = '';
-    fill.dataset.state = state;
-    if (state === 'low' || state === 'near') stat.textContent += ' · ' + Math.round(pct) + '%';
-    var hudAmt = document.getElementById('hud-amt');
-    var hudStat = document.getElementById('hud-status');
-    if (hudAmt) {
-      hudAmt.textContent = fmt(current);
-      hudStat.textContent = state === 'empty' ? 'counting…' : stat.textContent.replace(' — funds needed', '');
-      hudStat.className = 'hud-status ' + state;
-      hudAmt.style.color = state === 'low' ? 'var(--red)'
-        : (state === 'near' || state === 'over') ? 'var(--orange)'
-        : state === 'ok' ? 'var(--green-ok)' : 'var(--gold-light)';
-    }
-  }
-  var _updateTarget = updateTarget;
-  updateTarget = function () { _updateTarget(); refreshTargetExtras(); };
-  refreshTargetExtras();
-})();
-</script>
-
 </body>
 </html>
